@@ -7,20 +7,20 @@ from sklearn.metrics import roc_curve, roc_auc_score
 from matplotlib import pyplot as plt
 from LSTM.lstmCut import LstmCut
 
+# DATASETS
 datasets = []
-
 
 # Synthetic dataset
 template = {
-    'csv_path':'../datasets/synthetic_ds/synthetic_1_delay$$$.csv',
-    'name':'synthetic_$$$',
-    'group_by': 'journey_id',
-    'activity':'event',
-    'time_diff':'time_diff',
-    'time':'timestamp',
-    'guess':'case',
+    'csv_path':'../datasets/synthetic/synthetic_1_delay$$$.csv', # Path of the dataset
+    'name':'synthetic_$$$',                                      # Name of the experiment
+    'group_by': 'journey_id',                                    # COLUMN Case ID (long-running and complex cases)
+    'activity':'event',                                          # COLUMN activity
+    'time_diff':'time_diff',                                     # COLUMN time until next event
+    'time':'timestamp',                                          # COLUMN timestamp (used for sorting)
+    'guess':'case',                                              # COLUMN ground truth (true case id)
 }
-for delay in []: #0.0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.45, 0.5, 1.0, 2.0
+for delay in [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.45, 0.5, 1.0, 2.0]:
     dataset = copy.deepcopy(template)
     dataset['name'] = dataset['name'].replace('$$$', str(round(delay,2)))
     dataset['csv_path'] = dataset['csv_path'].replace('$$$', str(round(delay,2)))
@@ -29,7 +29,7 @@ for delay in []: #0.0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.45, 0.5, 1.0, 2.
 # Real life dataset
 datasets.append(
     {
-    'csv_path':'../datasets/real_transformed.csv',
+    'csv_path':'../datasets/real/real_transformed.csv',
     'name':'real_ds',
     'group_by': 'customer_id',
     'activity':'activity',
@@ -62,12 +62,13 @@ for dataset in datasets:
     df.drop(['next_guess_col'], axis=1, inplace=True)
 
     # Build LSTM to predict time until next event
-    output['window'] = 10
-    output['epoch'] = 20
-    output['factor'] = 64
-    output['noise'] = 0.5
-    lstm = LstmCut(df, dataset['group_by'], dataset['time_diff'], dataset['activity'], name='results/{}/{}'.format(t, dataset['name'], factor=output['factor']), window=output['window'], noise=output['noise']) #,
+    output['window'] = 10   # lookout window size
+    output['epoch'] = 20    # Number of epochs
+    output['factor'] = 64   # Number of cells in LSTM
+    output['noise'] = 0.5   # Dropout in LSTM
+    lstm = LstmCut(df, dataset['group_by'], dataset['time_diff'], dataset['activity'], name='results/{}/{}'.format(t, dataset['name'], factor=output['factor']), window=output['window'], noise=output['noise'])
 
+    # GCPAP (Global Context Process Aware Partitioning)
     exec_time = {}
     exec_time['GCPAP'] = lstm.build_model(epoch=output['epoch'])
     df['GCPAP'] = lstm.predict()
@@ -122,4 +123,3 @@ for dataset in datasets:
     # Export results
     frame = pd.DataFrame(final_output)
     frame.to_csv('results/{}.csv'.format(final_t))
-    print (frame.to_string())
