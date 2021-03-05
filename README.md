@@ -10,5 +10,9 @@ In [example/main.py](example/main.py), you will find a code that explains how to
 ## Experiment
 The folder [experiment/](experiment/) contains the code to redo the experiment from the paper and also the raw results.
 
+## TechnicalReport
+The folder [TechnicalReport/](TechnicalReport/) contains the code to redo the experiment from the technical report. You need the original dataset that you can download [here](https://data.4tu.nl/articles/dataset/A_collection_of_artificial_event_logs_to_test_process_discovery_and_conformance_checking_techniques/12704777).
+
+
 ## Any Question?
-Please feel free to contact us at gael.bernard@unil.ch.
+Please feel free to contact us at gael.bernard@utoronto.ca.
